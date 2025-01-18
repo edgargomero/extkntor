@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function showPreview() {
     const formattedData = collectedData.map(item => 
-      `Página: ${item.title}\nURL: ${item.url}\nContenido: ${item.content}\n---`
+      `Pgina: ${item.title}\nURL: ${item.url}\nContenido: ${item.content}\n---`
     ).join('\n');
     
     dataPreview.value = formattedData;
@@ -98,26 +98,19 @@ document.addEventListener('DOMContentLoaded', () => {
           max_tokens: 1000,
           temperature: 0.7, // Controla la creatividad/aleatoriedad (0-1)
           top_p: 0.95, // Controla la diversidad de las respuestas
-          messages: [
-            {
-              role: 'system',
-              content: `
-                You are a React component generator.
-                Please follow these guidelines:
-                - Use TypeScript
-                - Use modern React practices (hooks, functional components)
-                - Include proper prop types
-                - Add JSDoc comments
-                - Follow clean code principles
-                - Include error handling
-                - Make components reusable
-              `
-            },
-            {
-              role: 'user',
-              content: dataPreview.value
-            }
-          ],
+          system: `
+            You are a travel agent. Please provide a detailed quote for the following services:
+            1. One airline ticket
+            2. Hotel accommodation
+            3. Travel insurance
+            4. Tours
+            5. Transfers
+            6. Total service fee
+          `,
+          messages: [{
+            role: 'user',
+            content: dataPreview.value
+          }],
           response_format: {
             type: 'artifact',
             format: 'react_component',
