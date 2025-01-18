@@ -98,8 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
           max_tokens: 1000,
           temperature: 0.7, // Controla la creatividad/aleatoriedad (0-1)
           top_p: 0.95, // Controla la diversidad de las respuestas
-          messages: [{
-            role: 'system',
+          system: {
             content: `
               You are a React component generator.
               Please follow these guidelines:
@@ -111,7 +110,8 @@ document.addEventListener('DOMContentLoaded', () => {
               - Include error handling
               - Make components reusable
             `
-          }, {
+          },
+          messages: [{
             role: 'user',
             content: dataPreview.value
           }],
