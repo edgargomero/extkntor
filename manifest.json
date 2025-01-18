@@ -1,0 +1,30 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Assistant",
+  "version": "1.0",
+  "description": "Extensión para comunicarse con Claude 3.5 Sonnet",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "tabs",
+    "scripting",
+    "geolocation"
+  ],
+  "host_permissions": [
+    "https://api.anthropic.com/*",
+    "https://*/*",
+    "http://*/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content.js"]
+    }
+  ]
+}

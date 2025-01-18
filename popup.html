@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Claude Assistant</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" rel="stylesheet">
+</head>
+<body>
+  <div class="p-4">
+    <div class="mb-4">
+      <input type="password" id="apiKey" placeholder="API Key" class="w-full p-2 border rounded">
+      <button id="saveKey" class="mt-2 bg-green-500 text-white px-4 py-1 rounded">Save API Key</button>
+    </div>
+    
+    <div class="flex gap-2">
+      <button id="startCollection" class="bg-blue-500 text-white px-4 py-2 rounded">Start Collection</button>
+      <button id="stopCollection" class="bg-red-500 text-white px-4 py-2 rounded" disabled>Stop Collection</button>
+    </div>
+
+    <div class="mt-4">
+      <h3 class="font-bold mb-2">Collection Status: <span id="status">Inactive</span></h3>
+      <div id="collectedContent" class="max-h-60 overflow-y-auto border rounded mb-4"></div>
+      
+      <div class="preview-section hidden" id="previewSection">
+        <h3 class="font-bold mb-2">Data Preview</h3>
+        <textarea id="dataPreview" class="w-full h-40 p-2 border rounded mb-2" readonly></textarea>
+        <div class="flex justify-between">
+          <button id="editData" class="bg-yellow-500 text-white px-4 py-2 rounded">Edit</button>
+          <button id="sendToClaude" class="bg-green-500 text-white px-4 py-2 rounded">Send to Claude</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
