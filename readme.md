@@ -82,11 +82,10 @@ git clone [url-del-repositorio]
 5. Abre un Pull Request
 
 ## 📄 Licencia
-
 Este proyecto está licenciado bajo la Licencia MIT - ver el archivo [LICENSE.md](LICENSE.md) para más detalles.
 
 ## 📬 Contacto
 
-Tu Nombre - [@tu_twitter](https://twitter.com/tu_usuario) - email@ejemplo.com
+Tu Nombre - [@tu_twitter](https://twitter.com/edgaragp) - edgar@kntor.io
 
-Link del proyecto: [https://github.com/tu_usuario/nombre-repositorio](https://github.com/tu_usuario/nombre-repositorio)
+Link del proyecto: [https://github.com/edgargomero/extkntor](https://github.com/edgargomero/extkntor)
