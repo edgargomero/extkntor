@@ -11,16 +11,19 @@ document.addEventListener('DOMContentLoaded', () => {
   const editDataBtn = document.getElementById('editData');
   const sendToClaudeBtn = document.getElementById('sendToClaude');
 
+  // Cargar API Key guardada
   chrome.storage.local.get(['apiKey'], (result) => {
     if (result.apiKey) apiKeyInput.value = result.apiKey;
   });
 
+  // Guardar API Key
   saveKeyBtn.addEventListener('click', () => {
     chrome.storage.local.set({ apiKey: apiKeyInput.value }, () => {
       alert('API Key saved');
     });
   });
 
+  // Iniciar recolección
   startBtn.addEventListener('click', () => {
     chrome.runtime.sendMessage({ action: 'startCollection' }, (response) => {
       if (response?.status === 'started') {
@@ -29,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Detener recolección
   stopBtn.addEventListener('click', () => {
     chrome.runtime.sendMessage({ action: 'stopCollection' }, (response) => {
       if (response?.status === 'stopped') {
@@ -40,12 +44,15 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+  // Actualizar UI según estado
   function updateUI(isCollecting) {
     startBtn.disabled = isCollecting;
     stopBtn.disabled = !isCollecting;
     statusSpan.textContent = isCollecting ? 'Active' : 'Inactive';
+    statusSpan.className = isCollecting ? 'text-green-500' : 'text-gray-500';
   }
 
+  // Actualizar contenido mostrado
   function updateContent() {
     contentDiv.innerHTML = collectedData.length ? 
       collectedData.map(item => `
@@ -60,20 +67,23 @@ document.addEventListener('DOMContentLoaded', () => {
       '<div class="p-4 text-center text-gray-500">No data collected yet</div>';
   }
 
+  // Mostrar vista previa
   function showPreview() {
     const formattedData = collectedData.map(item => 
-      `Pgina: ${item.title}\nURL: ${item.url}\nContenido: ${item.content}\n---`
+      `Página: ${item.title}\nURL: ${item.url}\nContenido: ${item.content}\n---`
     ).join('\n');
     
     dataPreview.value = formattedData;
     previewSection.classList.remove('hidden');
   }
 
+  // Habilitar edición de datos
   editDataBtn.addEventListener('click', () => {
     dataPreview.readOnly = false;
     dataPreview.focus();
   });
 
+  // Enviar a Claude
   sendToClaudeBtn.addEventListener('click', async () => {
     const apiKey = apiKeyInput.value;
     if (!apiKey) {
@@ -85,6 +95,18 @@ document.addEventListener('DOMContentLoaded', () => {
     sendToClaudeBtn.textContent = 'Sending...';
 
     try {
+      const systemPrompt = `
+        You are a React component generator.
+        Please follow these guidelines:
+        - Use TypeScript
+        - Use modern React practices (hooks, functional components)
+        - Include proper prop types
+        - Add JSDoc comments
+        - Follow clean code principles
+        - Include error handling
+        - Make components reusable
+      `;
+
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: {
@@ -96,32 +118,18 @@ document.addEventListener('DOMContentLoaded', () => {
         body: JSON.stringify({
           model: 'claude-3-sonnet-20240229',
           max_tokens: 1000,
-          temperature: 0.7, // Controla la creatividad/aleatoriedad (0-1)
-          top_p: 0.95, // Controla la diversidad de las respuestas
-          system: `
-            You are a travel agent. Please provide a detailed quote for the following services:
-            1. One airline ticket
-            2. Hotel accommodation
-            3. Travel insurance
-            4. Tours
-            5. Transfers
-            6. Total service fee
-          `,
+          temperature: 0.7,
+          system: systemPrompt,
           messages: [{
             role: 'user',
             content: dataPreview.value
-          }],
-          response_format: {
-            type: 'artifact',
-            format: 'react_component',
-            specs: {
-              typescript: true,
-              styling: 'styled-components', // o 'css-modules', 'tailwind', etc.
-              framework: 'next.js', // o 'create-react-app', 'vite', etc.
-            }
-          }
+          }]
         })
       });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
 
       const result = await response.json();
       if (result.content) {
@@ -130,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         throw new Error(JSON.stringify(result));
       }
     } catch (error) {
+      console.error('Error:', error);
       alert(`Error: ${error.message}`);
     } finally {
       sendToClaudeBtn.disabled = false;
@@ -137,6 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Escuchar actualizaciones de datos
   chrome.runtime.onMessage.addListener((request) => {
     if (request.action === 'updateCollectedData') {
       collectedData = request.data;
@@ -144,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // Obtener estado inicial
   chrome.runtime.sendMessage({ action: 'getStatus' }, (response) => {
     if (response) {
       updateUI(response.isCollecting);
@@ -151,4 +162,22 @@ document.addEventListener('DOMContentLoaded', () => {
       updateContent();
     }
   });
+
+  // Función para limpiar datos
+  function cleanCollectedData() {
+    collectedData = [];
+    updateContent();
+    previewSection.classList.add('hidden');
+  }
+
+  // Función para exportar datos
+  function exportData() {
+    const blob = new Blob([JSON.stringify(collectedData)], {type: 'application/json'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'collected-data.json';
+    a.click();
+    URL.revokeObjectURL(url);
+  }
 });
